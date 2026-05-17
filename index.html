@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>孩子英文自我介绍 - 二维码生成器</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        select, input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            flex: 1;
+            min-width: 200px;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            min-width: 120px;
+        }
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        .qr-section {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 2px solid #eee;
+            display: none;
+        }
+        .qr-section.show {
+            display: block;
+        }
+        .qr-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        #qrcode {
+            display: inline-block;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .instructions {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 14px;
+            color: #78350f;
+        }
+        .instructions h4 {
+            margin-bottom: 10px;
+            color: #92400e;
+            font-size: 16px;
+        }
+        .instructions ol {
+            margin-left: 20px;
+        }
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        .status-message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+        }
+        .status-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+        .audio-preview {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .audio-preview audio {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .file-status {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            .header h1 {
+                font-size: 22px;
+            }
+            .button-group {
+                flex-direction: column;
+            }
+            button {
+                width: 100%;
+            }
+            .btn-primary {
+                min-width: auto;
+            }
+            .btn-secondary {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎤 孩子英文自我介绍</h1>
+            <p>为宝贝的童真心声生成专属二维码</p>
+        </div>
+
+        <div class="instructions">
+            <h4>📝 使用说明：</h4>
+            <ol>
+                <li>从下拉列表中选择孩子名字</li>
+                <li>点击"✨ 生成二维码"按钮</li>
+                <li>下载二维码并打印贴在自画像侧边</li>
+                <li>其他人扫码即可自动播放孩子的英文自我介绍</li>
+            </ol>
+        </div>
+
+        <form id="qrForm">
+            <div class="form-group">
+                <label for="childSelect">🧒 选择孩子 *</label>
+                <select id="childSelect" required>
+                    <option value="">-- 请选择孩子名字 --</option>
+                    <option value="xiaoming">小明 (Xiaoming)</option>
+                    <option value="xiaohong">小红 (Xiaohong)</option>
+                    <option value="xiaogang">小刚 (Xiaogang)</option>
+                    <option value="xiaoli">小丽 (Xiaoli)</option>
+                    <option value="xiaowang">小王 (Xiaowang)</option>
+                </select>
+                <small style="color: #666; display: block; margin-top: 8px;">
+                    💡 提示：更多孩子名字可以联系管理员添加
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label>🔊 音频预览</label>
+                <div class="audio-preview">
+                    <div class="file-status" id="fileStatus">选择孩子后显示音频</div>
+                    <audio id="previewAudio" controls style="display: none;"></audio>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn-primary" id="generateBtn">
+                    ✨ 生成二维码
+                </button>
+                <button type="button" class="btn-secondary" id="resetBtn" style="display: none;">
+                    ↻ 重新开始
+                </button>
+            </div>
+        </form>
+
+        <!-- 二维码显示区域 -->
+        <div class="qr-section" id="qrSection">
+            <h3>📌 二维码已生成！</h3>
+            <div id="qrcode"></div>
+            <div class="button-group">
+                <button type="button" class="btn-primary" onclick="downloadQR()" style="flex: 1; min-width: 200px;">
+                    ⬇️ 下载二维码
+                </button>
+                <button type="button" class="btn-secondary" onclick="printQR()" style="min-width: 100px;">
+                    🖨️ 打印
+                </button>
+            </div>
+            <div id="statusMessage" class="status-message status-success" style="margin-top: 15px;">
+                ✅ 二维码已准备好！请下载或打印后贴在自画像旁边
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 孩子信息配置
+        const children = {
+            xiaoming: { name: '小明', filename: 'xiaoming.mp3', displayName: '小明 (Xiaoming)' },
+            xiaohong: { name: '小红', filename: 'xiaohong.mp3', displayName: '小红 (Xiaohong)' },
+            xiaogang: { name: '小刚', filename: 'xiaogang.mp3', displayName: '小刚 (Xiaogang)' },
+            xiaoli: { name: '小丽', filename: 'xiaoli.mp3', displayName: '小丽 (Xiaoli)' },
+            xiaowang: { name: '小王', filename: 'xiaowang.mp3', displayName: '小王 (Xiaowang)' }
+        };
+
+        let selectedChild = null;
+        let baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+
+        // 选择孩子时显示音频预览
+        document.getElementById('childSelect').addEventListener('change', function(e) {
+            const childKey = e.target.value;
+            selectedChild = children[childKey];
+
+            if (selectedChild) {
+                const audioPath = baseUrl + '/audios/' + selectedChild.filename;
+                const previewAudio = document.getElementById('previewAudio');
+                const fileStatus = document.getElementById('fileStatus');
+
+                previewAudio.src = audioPath;
+                previewAudio.style.display = 'block';
+                fileStatus.textContent = `✓ ${selectedChild.displayName} - ${selectedChild.filename}`;
+            }
+        });
+
+        // 生成二维码
+        document.getElementById('generateBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+
+            if (!selectedChild) {
+                alert('请先选择孩子');
+                return;
+            }
+
+            // 构建播放页面的URL
+            const playUrl = baseUrl + '/play.html?child=' + selectedChild.name;
+
+            // 清空之前的二维码
+            document.getElementById('qrcode').innerHTML = '';
+
+            // 生成新的二维码
+            QRCode.toCanvas(
+                document.getElementById('qrcode'),
+                playUrl,
+                {
+                    errorCorrectionLevel: 'H',
+                    type: 'image/png',
+                    quality: 0.95,
+                    margin: 2,
+                    width: 350,
+                    color: {
+                        dark: '#000000',
+                        light: '#FFFFFF'
+                    }
+                },
+                function(error) {
+                    if (error) {
+                        console.error('二维码生成错误:', error);
+                        alert('生成二维码失败，请重试');
+                    } else {
+                        document.getElementById('qrSection').classList.add('show');
+                        document.getElementById('resetBtn').style.display = 'inline-block';
+                    }
+                }
+            );
+        });
+
+        // 下载二维码
+        function downloadQR() {
+            if (!selectedChild) return;
+
+            const canvas = document.querySelector('#qrcode canvas');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `${selectedChild.name}-voice-qrcode.png`;
+                link.click();
+            }
+        }
+
+        // 打���二维码
+        function printQR() {
+            if (!selectedChild) return;
+
+            const canvas = document.querySelector('#qrcode canvas');
+            if (canvas) {
+                const printWindow = window.open();
+                printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>打印二维码</title>
+                        <style>
+                            body {
+                                text-align: center;
+                                padding: 40px;
+                                font-family: 'Microsoft YaHei', Arial, sans-serif;
+                                background: white;
+                            }
+                            .container {
+                                max-width: 600px;
+                                margin: 0 auto;
+                            }
+                            h2 {
+                                color: #333;
+                                margin-bottom: 30px;
+                                font-size: 24px;
+                            }
+                            img {
+                                max-width: 400px;
+                                height: auto;
+                                margin: 20px 0;
+                                border: 2px solid #ddd;
+                                padding: 10px;
+                                border-radius: 8px;
+                            }
+                            p {
+                                color: #666;
+                                font-size: 16px;
+                                margin-top: 20px;
+                            }
+                            .footer {
+                                margin-top: 30px;
+                                font-size: 12px;
+                                color: #999;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <h2>🎤 ${selectedChild.displayName}</h2>
+                            <p>英文自我介绍</p>
+                            <img src="${canvas.toDataURL('image/png')}" alt="二维码">
+                            <p>扫描二维码倾听${selectedChild.name}的自我介绍</p>
+                            <div class="footer">
+                                <p>English Self-Introduction</p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                setTimeout(() => {
+                    printWindow.print();
+                }, 250);
+            }
+        }
+
+        // 重置表单
+        document.getElementById('resetBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('childSelect').value = '';
+            document.getElementById('previewAudio').style.display = 'none';
+            document.getElementById('previewAudio').src = '';
+            document.getElementById('fileStatus').textContent = '选择孩子后显示音频';
+            document.getElementById('qrSection').classList.remove('show');
+            document.getElementById('resetBtn').style.display = 'none';
+            selectedChild = null;
+        });
+    </script>
+</body>
+</html>
